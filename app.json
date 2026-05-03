@@ -1,11 +1,10 @@
 {
   "expo": {
     "name": "SmartMow",
-    "slug": "mobile",
+    "slug": "smartmow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -14,10 +13,7 @@
       "backgroundColor": "#071a07"
     },
     "ios": {
-      "supportsTablet": false,
-      "infoPlist": {
-        "NSLocalNetworkUsageDescription": "SmartMow needs local network access to connect to and control your mower over WiFi."
-      }
+      "supportsTablet": false
     },
     "android": {
       "package": "com.da3poles.smartmow",
@@ -25,24 +21,19 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#071a07"
       },
-      "permissions": ["android.permission.INTERNET", "android.permission.ACCESS_WIFI_STATE", "android.permission.CHANGE_WIFI_STATE", "android.permission.ACCESS_NETWORK_STATE"]
-    },
-    "web": {
-      "favicon": "./assets/images/icon.png"
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://replit.com/"
-        }
-      ],
+      "expo-router",
       "expo-font",
       "expo-web-browser"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     }
   }
 }

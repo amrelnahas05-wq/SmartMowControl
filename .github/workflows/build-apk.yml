@@ -19,39 +19,42 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Expo & EAS
-        uses: expo/expo-github-action@v8
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Install dependencies
         run: npm install
 
-      - name: Initialize EAS project
-        run: npx eas-cli init --non-interactive
+      - name: Generate Android native code
+        run: npx expo prebuild --platform android --non-interactive --clean
+
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android/**/*.gradle*') }}
+          restore-keys: gradle-
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug --no-daemon
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        continue-on-error: true
+          GRADLE_OPTS: -Xmx4096m -XX:MaxMetaspaceSize=512m
 
-      - name: Build APK via EAS
-        run: npx eas-cli build -p android --profile preview --non-interactive --wait
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Get APK download URL
-        id: apk_url
-        run: |
-          URL=$(npx eas-cli build:list --json --non-interactive --limit 1 | jq -r '.[0].artifacts.buildUrl')
-          echo "url=$URL" >> $GITHUB_OUTPUT
-
-      - name: Download APK
-        run: curl -L "${{ steps.apk_url.outputs.url }}" -o SmartMow-v${{ github.run_number }}.apk
-
-      - name: Upload APK as artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SmartMow-APK-v${{ github.run_number }}
-          path: SmartMow-v${{ github.run_number }}.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
           if-no-files-found: error

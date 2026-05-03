@@ -18,7 +18,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-         
 
       - name: Setup Expo & EAS
         uses: expo/expo-github-action@v8
@@ -27,22 +26,23 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
 
-       - name: Initialize EAS project
-        run: eas init --non-interactive
+      - name: Initialize EAS project
+        run: npx eas-cli init --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        continue-on-error: true
 
       - name: Build APK via EAS
-        run: eas build -p android --profile preview --non-interactive --wait
+        run: npx eas-cli build -p android --profile preview --non-interactive --wait
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Get APK download URL
         id: apk_url
         run: |
-          URL=$(eas build:list --json --non-interactive --limit 1 | jq -r '.[0].artifacts.buildUrl')
+          URL=$(npx eas-cli build:list --json --non-interactive --limit 1 | jq -r '.[0].artifacts.buildUrl')
           echo "url=$URL" >> $GITHUB_OUTPUT
 
       - name: Download APK
@@ -54,3 +54,4 @@ jobs:
           name: SmartMow-APK-v${{ github.run_number }}
           path: SmartMow-v${{ github.run_number }}.apk
           retention-days: 30
+          if-no-files-found: error
